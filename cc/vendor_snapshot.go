@@ -30,16 +30,6 @@ var vendorSnapshotSingleton = snapshotSingleton{
 	android.OptionalPath{},
 	true,
 	vendorSnapshotImageSingleton,
-	false, /* fake */
-}
-
-var vendorFakeSnapshotSingleton = snapshotSingleton{
-	"vendor",
-	"SOONG_VENDOR_FAKE_SNAPSHOT_ZIP",
-	android.OptionalPath{},
-	true,
-	vendorSnapshotImageSingleton,
-	true, /* fake */
 }
 
 var recoverySnapshotSingleton = snapshotSingleton{
@@ -48,15 +38,10 @@ var recoverySnapshotSingleton = snapshotSingleton{
 	android.OptionalPath{},
 	false,
 	recoverySnapshotImageSingleton,
-	false, /* fake */
 }
 
 func VendorSnapshotSingleton() android.Singleton {
 	return &vendorSnapshotSingleton
-}
-
-func VendorFakeSnapshotSingleton() android.Singleton {
-	return &vendorFakeSnapshotSingleton
 }
 
 func RecoverySnapshotSingleton() android.Singleton {
@@ -81,11 +66,6 @@ type snapshotSingleton struct {
 	// associated with this snapshot (e.g., specific to the vendor image,
 	// recovery image, etc.).
 	image snapshotImage
-
-	// Whether this singleton is for fake snapshot or not.
-	// Fake snapshot is a snapshot whose prebuilt binaries and headers are empty.
-	// It is much faster to generate, and can be used to inspect dependencies.
-	fake bool
 }
 
 var (
@@ -334,11 +314,6 @@ func (c *snapshotSingleton) GenerateBuildActions(ctx android.SingletonContext) {
 	*/
 
 	snapshotDir := c.name + "-snapshot"
-	if c.fake {
-		// If this is a fake snapshot singleton, place all files under fake/ subdirectory to avoid
-		// collision with real snapshot files
-		snapshotDir = filepath.Join("fake", snapshotDir)
-	}
 	snapshotArchDir := filepath.Join(snapshotDir, ctx.DeviceConfig().DeviceArch())
 
 	includeDir := filepath.Join(snapshotArchDir, "include")
@@ -350,17 +325,6 @@ func (c *snapshotSingleton) GenerateBuildActions(ctx android.SingletonContext) {
 
 	var headers android.Paths
 
-	copyFile := copyFileRule
-	if c.fake {
-		// All prebuilt binaries and headers are installed by copyFile function. This makes a fake
-		// snapshot just touch prebuilts and headers, rather than installing real files.
-		copyFile = func(ctx android.SingletonContext, path android.Path, out string) android.OutputPath {
-			return writeStringToFileRule(ctx, "", out)
-		}
-	}
-
-	// installSnapshot function copies prebuilt file (.so, .a, or executable) and json flag file.
-	// For executables, init_rc and vintf_fragments files are also copied.
 	installSnapshot := func(m *Module) android.Paths {
 		targetArch := "arch-" + m.Target().Arch.ArchType.String()
 		if m.Target().Arch.ArchVariant != "" {
@@ -504,7 +468,7 @@ func (c *snapshotSingleton) GenerateBuildActions(ctx android.SingletonContext) {
 			ctx.Errorf("json marshal to %q failed: %#v", propOut, err)
 			return nil
 		}
-		ret = append(ret, writeStringToFileRule(ctx, string(j), propOut))
+		ret = append(ret, writeStringToFile(ctx, string(j), propOut))
 
 		return ret
 	}
@@ -553,7 +517,8 @@ func (c *snapshotSingleton) GenerateBuildActions(ctx android.SingletonContext) {
 			// skip already copied notice file
 			if !installedNotices[noticeOut] {
 				installedNotices[noticeOut] = true
-				snapshotOutputs = append(snapshotOutputs, copyFile(ctx, m.NoticeFile().Path(), noticeOut))
+				snapshotOutputs = append(snapshotOutputs, copyFile(
+					ctx, m.NoticeFile().Path(), noticeOut))
 			}
 		}
 	})
