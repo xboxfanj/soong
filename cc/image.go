@@ -176,9 +176,6 @@ func (m *Module) ImageMutatorBegin(mctx android.BaseModuleContext) {
 	recoverySnapshotVersion := mctx.DeviceConfig().RecoverySnapshotVersion()
 	usingRecoverySnapshot := recoverySnapshotVersion != "current" &&
 		recoverySnapshotVersion != ""
-	ramdiskSnapshotVersion := mctx.DeviceConfig().RamdiskSnapshotVersion()
-	usingRamdiskSnapshot := ramdiskSnapshotVersion != "current" &&
-		ramdiskSnapshotVersion != ""
 	if boardVndkVersion == "current" {
 		boardVndkVersion = platformVndkVersion
 	}
@@ -219,8 +216,6 @@ func (m *Module) ImageMutatorBegin(mctx android.BaseModuleContext) {
 		}); ok {
 			if m.InstallInRecovery() {
 				recoveryVariantNeeded = true
-			} else if m.InstallInRamdisk() {
-				ramdiskVariantNeeded = true
 			} else {
 				vendorVariants = append(vendorVariants, snapshot.version())
 			}
@@ -311,12 +306,6 @@ func (m *Module) ImageMutatorBegin(mctx android.BaseModuleContext) {
 		usingRecoverySnapshot &&
 		!isRecoveryProprietaryModule(mctx) {
 		recoveryVariantNeeded = false
-	}
-	if _, ok := m.linker.(*kernelHeadersDecorator); !ok &&
-		!m.isSnapshotPrebuilt() &&
-		usingRamdiskSnapshot &&
-		!isRamdiskProprietaryModule(mctx) {
-		ramdiskVariantNeeded = false
 	}
 
 	for _, variant := range android.FirstUniqueStrings(vendorVariants) {
