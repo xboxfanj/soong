@@ -2462,10 +2462,6 @@ func (j *Import) sdkVersion() sdkSpec {
 	return sdkSpecFrom(String(j.properties.Sdk_version))
 }
 
-func (j *Import) makeSdkVersion() string {
-	return j.sdkVersion().raw
-}
-
 func (j *Import) minSdkVersion() sdkSpec {
 	return j.sdkVersion()
 }
