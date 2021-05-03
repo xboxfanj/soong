@@ -36,9 +36,6 @@ import (
 var Bool = proptools.Bool
 var String = proptools.String
 
-// StringDefault re-exports proptools.StringDefault for the android package.
-var StringDefault = proptools.StringDefault
-
 const FutureApiLevel = 10000
 
 // The configuration file name
@@ -996,10 +993,6 @@ func (c *deviceConfig) VendorPath() string {
 
 func (c *deviceConfig) VndkVersion() string {
 	return String(c.config.productVariables.DeviceVndkVersion)
-}
-
-func (c *deviceConfig) RecoverySnapshotVersion() string {
-	return String(c.config.productVariables.RecoverySnapshotVersion)
 }
 
 func (c *deviceConfig) PlatformVndkVersion() string {
