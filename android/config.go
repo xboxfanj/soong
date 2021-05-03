@@ -964,10 +964,6 @@ func (c *config) HasMultilibConflict(arch ArchType) bool {
 	return c.multilibConflicts[arch]
 }
 
-func (c *config) PrebuiltHiddenApiDir(ctx PathContext) string {
-	return String(c.productVariables.PrebuiltHiddenApiDir)
-}
-
 func (c *deviceConfig) Arches() []Arch {
 	var arches []Arch
 	for _, target := range c.config.Targets[Android] {
