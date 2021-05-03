@@ -47,5 +47,4 @@ var VndkMustUseVendorVariantList = []string{
 	"libstagefright_xmlparser",
 	"libui",
 	"libxml2",
-	"libmedia_helper",//Remove it from the list once the workaround patch is cleared in S
 }
