@@ -1073,14 +1073,9 @@ func getRefAbiDumpFile(ctx ModuleContext, vndkVersion, fileName string) android.
 
 func (library *libraryDecorator) linkSAbiDumpFiles(ctx ModuleContext, objs Objects, fileName string, soFile android.Path) {
 	if library.shouldCreateSourceAbiDump(ctx) {
-		var vndkVersion string
-
-		if ctx.useVndk() {
-			// For modules linking against vndk, follow its vndk version
-			vndkVersion = ctx.Module().(*Module).VndkVersion()
-		} else {
-			// Regard the other modules as PLATFORM_VNDK_VERSION
-			vndkVersion = ctx.DeviceConfig().PlatformVndkVersion()
+		vndkVersion := ctx.DeviceConfig().PlatformVndkVersion()
+		if ver := ctx.DeviceConfig().VndkVersion(); ver != "" && ver != "current" {
+			vndkVersion = ver
 		}
 
 		exportIncludeDirs := library.flagExporter.exportedIncludes(ctx)
