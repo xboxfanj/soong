@@ -290,12 +290,8 @@ func (recoverySnapshotImage) skipSourceMutator(ctx android.BottomUpMutatorContex
 }
 
 func (recoverySnapshotImage) excludeFromDirectedSnapshot(cfg android.DeviceConfig, name string) bool {
-	// If we're using full snapshot, not directed snapshot, capture every module
-	if !cfg.DirectedRecoverySnapshot() {
-		return false
-	}
-	// Else, checks if name is in RECOVERY_SNAPSHOT_MODULES.
-	return !cfg.RecoverySnapshotModules()[name]
+	// directed recovery snapshot is not implemented yet
+	return false
 }
 
 var vendorSnapshotImageSingleton vendorSnapshotImage
