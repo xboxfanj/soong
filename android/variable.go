@@ -131,6 +131,34 @@ type variableProperties struct {
 			Srcs         []string `android:"arch_variant"`
 			Exclude_srcs []string `android:"arch_variant"`
 		} `android:"arch_variant"`
+
+		Real_hal struct {
+			Cflags       []string
+			Exclude_srcs []string
+			Include_dirs []string
+			Shared_libs  []string
+			Static_libs  []string
+			Srcs         []string
+		}
+
+		Qmaa_hal struct {
+			Cflags       []string
+			Exclude_srcs []string
+			Include_dirs []string
+			Shared_libs  []string
+			Static_libs  []string
+			Srcs         []string
+		}
+
+		Device_support_hwfde struct {
+			Cflags []string
+			Header_libs  []string
+			Shared_libs  []string
+		}
+
+		Device_support_hwfde_perf struct {
+			Cflags []string
+		}
 	} `android:"arch_variant"`
 }
 
@@ -203,6 +231,10 @@ type productVariables struct {
 
 	AppsDefaultVersionName *string `json:",omitempty"`
 
+	Real_hal                   *bool `json:",omitempty"`
+	Qmaa_hal                   *bool `json:",omitempty"`
+	Device_support_hwfde       *bool `json:",omitempty"`
+	Device_support_hwfde_perf  *bool `json:",omitempty"`
 	Allow_missing_dependencies       *bool `json:",omitempty"`
 	Unbundled_build                  *bool `json:",omitempty"`
 	Unbundled_build_sdks_from_source *bool `json:",omitempty"`
@@ -234,6 +266,10 @@ type productVariables struct {
 	UpdatableBootJars []string `json:",omitempty"`
 
 	IntegerOverflowExcludePaths []string `json:",omitempty"`
+	IntegerOverflowIncludePaths []string `json:",omitempty"`
+
+	BoundSanitizerExcludePaths []string `json:",omitempty"`
+	BoundSanitizerIncludePaths []string `json:",omitempty"`
 
 	EnableCFI       *bool    `json:",omitempty"`
 	CFIExcludePaths []string `json:",omitempty"`

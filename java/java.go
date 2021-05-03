@@ -702,6 +702,12 @@ func (j *Module) deps(ctx android.BottomUpMutatorContext) {
 		if sdkDep.systemModules != "" {
 			ctx.AddVariationDependencies(nil, systemModulesTag, sdkDep.systemModules)
 		}
+
+		if ctx.ModuleName() == "android_stubs_current" ||
+			ctx.ModuleName() == "android_system_stubs_current" ||
+			ctx.ModuleName() == "android_test_stubs_current" {
+			ctx.AddVariationDependencies(nil, frameworkApkTag, "framework-res")
+		}
 	}
 
 	syspropPublicStubs := syspropPublicStubs(ctx.Config())

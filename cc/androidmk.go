@@ -92,6 +92,9 @@ func (c *Module) AndroidMkEntries() []android.AndroidMkEntries {
 				if len(c.Properties.AndroidMkWholeStaticLibs) > 0 {
 					entries.AddStrings("LOCAL_WHOLE_STATIC_LIBRARIES", c.Properties.AndroidMkWholeStaticLibs...)
 				}
+                                if lib, ok := c.compiler.(*libraryDecorator); ok {
+                                       entries.AddStrings("LOCAL_SRC_FILES", lib.baseCompiler.srcsBeforeGen.Strings()...)
+                                }
 				entries.SetString("LOCAL_SOONG_LINK_TYPE", c.makeLinkType)
 				if c.UseVndk() {
 					entries.SetBool("LOCAL_USE_VNDK", true)

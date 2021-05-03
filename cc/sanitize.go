@@ -303,11 +303,47 @@ func (sanitize *sanitize) begin(ctx BaseModuleContext) {
 		}
 	}
 
+	if s.Integer_overflow == nil && ctx.Config().IntegerOverflowEnabledForPath(ctx.ModuleDir()) && ctx.Arch().ArchType == android.Arm64 {
+		s.Integer_overflow = boolPtr(true)
+	}
+
+	if  ctx.Config().BoundSanitizerEnabledForPath(ctx.ModuleDir()) && ctx.Arch().ArchType == android.Arm64 {
+		s.Misc_undefined = append(s.Misc_undefined, "bounds")
+	}
+
+	if ctx.Config().BoundSanitizerDisabledForPath(ctx.ModuleDir()) && ctx.Arch().ArchType == android.Arm64 {
+		indx := indexList("bounds", s.Misc_undefined)
+		if (indexList("bounds", s.Misc_undefined) != -1) {
+			s.Misc_undefined = append(s.Misc_undefined[0:indx], s.Misc_undefined[indx+1:]...)
+		}
+	}
+
+    // Disable integer-overflow in exclude path
+	if ctx.Config().IntegerOverflowDisabledForPath(ctx.ModuleDir()) && ctx.Arch().ArchType == android.Arm64 {
+		indx := indexList("signed-integer-overflow", s.Misc_undefined)
+		if (indexList("signed-integer-overflow", s.Misc_undefined) != -1) {
+			s.Misc_undefined = append(s.Misc_undefined[0:indx], s.Misc_undefined[indx+1:]...)
+		}
+
+		indx = indexList("unsigned-integer-overflow", s.Misc_undefined)
+		if (indexList("unsigned-integer-overflow", s.Misc_undefined) != -1) {
+			s.Misc_undefined = append(s.Misc_undefined[0:indx], s.Misc_undefined[indx+1:]...)
+		}
+        s.Integer_overflow = nil
+	}
+
 	// Enable CFI for all components in the include paths (for Aarch64 only)
 	if s.Cfi == nil && ctx.Config().CFIEnabledForPath(ctx.ModuleDir()) && ctx.Arch().ArchType == android.Arm64 {
 		s.Cfi = boolPtr(true)
 		if inList("cfi", ctx.Config().SanitizeDeviceDiag()) {
 			s.Diag.Cfi = boolPtr(true)
+		}
+	}
+        // Disable CFI for all component in the exclude path (for Aarch64 only)
+	if ctx.Config().CFIDisabledForPath(ctx.ModuleDir()) && ctx.Arch().ArchType == android.Arm64 {
+		s.Cfi = nil
+		if inList("cfi", ctx.Config().SanitizeDeviceDiag()) {
+			s.Diag.Cfi = nil
 		}
 	}
 
