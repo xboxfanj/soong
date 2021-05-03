@@ -104,8 +104,6 @@ var (
 		"hardware": true,
 		"kernel":   true,
 		"vendor":   true,
-		// QC specific directories to be ignored
-		"disregard": true,
 	}
 
 	// Modules under following directories are included as they are in AOSP,
