@@ -83,7 +83,8 @@ func createImport(mctx android.LoadHookContext, module string, scope string, api
 	}{}
 	props.Name = proptools.StringPtr(prebuiltApiModuleName(mctx, module, scope, apiver))
 	props.Jars = append(props.Jars, path)
-	props.Sdk_version = proptools.StringPtr(scope)
+	// TODO(hansson): change to scope after migration is done.
+	props.Sdk_version = proptools.StringPtr("current")
 	props.Installable = proptools.BoolPtr(false)
 
 	mctx.CreateModule(ImportFactory, &props)
