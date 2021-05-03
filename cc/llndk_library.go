@@ -116,7 +116,6 @@ func (stub *llndkStubDecorator) processHeaders(ctx ModuleContext, srcHeaderDir s
 	srcDir := android.PathForModuleSrc(ctx, srcHeaderDir)
 	srcFiles := ctx.GlobFiles(filepath.Join(srcDir.String(), "**/*.h"), nil)
 
-	var depPaths []android.Path
 	var installPaths []android.WritablePath
 	for _, header := range srcFiles {
 		headerDir := filepath.Dir(header.String())
@@ -127,14 +126,9 @@ func (stub *llndkStubDecorator) processHeaders(ctx ModuleContext, srcHeaderDir s
 			continue
 		}
 
-		outputPath := outDir.Join(ctx, relHeaderDir, header.Base())
-		depPaths = append(depPaths, outputPath)
-		installPaths = append(installPaths, outputPath)
+		installPaths = append(installPaths, outDir.Join(ctx, relHeaderDir, header.Base()))
 	}
 
-	// Add the processed, exported headers so that they can be collected in
-	// a snapshot later, if necessary.
-	stub.addExportedGeneratedHeaders(depPaths...)
 	return processHeadersWithVersioner(ctx, srcDir, outDir, srcFiles, installPaths)
 }
 

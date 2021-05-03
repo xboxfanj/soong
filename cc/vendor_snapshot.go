@@ -31,7 +31,6 @@ var vendorSnapshotSingleton = snapshotSingleton{
 	true,
 	vendorSnapshotImageSingleton,
 	false, /* fake */
-	true,  /* usesLlndkLibraries */
 }
 
 var vendorFakeSnapshotSingleton = snapshotSingleton{
@@ -41,7 +40,6 @@ var vendorFakeSnapshotSingleton = snapshotSingleton{
 	true,
 	vendorSnapshotImageSingleton,
 	true, /* fake */
-	true, /* usesLlndkLibraries */
 }
 
 var recoverySnapshotSingleton = snapshotSingleton{
@@ -51,7 +49,6 @@ var recoverySnapshotSingleton = snapshotSingleton{
 	false,
 	recoverySnapshotImageSingleton,
 	false, /* fake */
-	false, /* usesLlndkLibraries */
 }
 
 var ramdiskSnapshotSingleton = snapshotSingleton{
@@ -61,7 +58,6 @@ var ramdiskSnapshotSingleton = snapshotSingleton{
 	false,
 	ramdiskSnapshotImageSingleton,
 	false, /* fake */
-	false, /* usesLlndkLibraries */
 }
 
 func VendorSnapshotSingleton() android.Singleton {
@@ -103,9 +99,6 @@ type snapshotSingleton struct {
 	// Fake snapshot is a snapshot whose prebuilt binaries and headers are empty.
 	// It is much faster to generate, and can be used to inspect dependencies.
 	fake bool
-
-	// Whether the image uses llndk libraries.
-	usesLlndkLibraries bool
 }
 
 var (
@@ -284,6 +277,13 @@ func isSnapshotAware(cfg android.DeviceConfig, m *Module, inProprietaryPath bool
 	if _, ok := m.linker.(*kernelHeadersDecorator); ok {
 		return false
 	}
+	// skip llndk_library and llndk_headers which are backward compatible
+	if _, ok := m.linker.(*llndkStubDecorator); ok {
+		return false
+	}
+	if _, ok := m.linker.(*llndkHeadersDecorator); ok {
+		return false
+	}
 
 	// Libraries
 	if l, ok := m.linker.(snapshotLibraryInterface); ok {
@@ -414,7 +414,6 @@ func (c *snapshotSingleton) GenerateBuildActions(ctx android.SingletonContext) {
 			Sanitize           string   `json:",omitempty"`
 			SanitizeMinimalDep bool     `json:",omitempty"`
 			SanitizeUbsanDep   bool     `json:",omitempty"`
-			IsLlndk            bool     `json:",omitempty"`
 
 			// binary flags
 			Symlinks []string `json:",omitempty"`
@@ -430,12 +429,7 @@ func (c *snapshotSingleton) GenerateBuildActions(ctx android.SingletonContext) {
 		}{}
 
 		// Common properties among snapshots.
-		if m.isLlndk(ctx.Config()) && c.usesLlndkLibraries {
-			prop.ModuleName = m.BaseModuleName()
-			prop.IsLlndk = true
-		} else {
-			prop.ModuleName = ctx.ModuleName(m)
-		}
+		prop.ModuleName = ctx.ModuleName(m)
 		if c.supportsVndkExt && m.isVndkExt() {
 			// vndk exts are installed to /vendor/lib(64)?/vndk(-sp)?
 			if m.isVndkSp() {
