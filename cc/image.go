@@ -223,7 +223,7 @@ func (m *Module) ImageMutatorBegin(mctx android.BaseModuleContext) {
 		// We assume that modules under proprietary paths are compatible for
 		// BOARD_VNDK_VERSION. The other modules are regarded as AOSP, or
 		// PLATFORM_VNDK_VERSION.
-		if isVendorProprietaryModule(mctx) {
+		if isVendorProprietaryPath(mctx.ModuleDir()) {
 			vendorVariants = append(vendorVariants, boardVndkVersion)
 		} else {
 			vendorVariants = append(vendorVariants, platformVndkVersion)
@@ -249,7 +249,7 @@ func (m *Module) ImageMutatorBegin(mctx android.BaseModuleContext) {
 				platformVndkVersion,
 				boardVndkVersion,
 			)
-		} else if isVendorProprietaryModule(mctx) {
+		} else if isVendorProprietaryPath(mctx.ModuleDir()) {
 			vendorVariants = append(vendorVariants, boardVndkVersion)
 		} else {
 			vendorVariants = append(vendorVariants, platformVndkVersion)
