@@ -500,14 +500,10 @@ func (c *vendorSnapshotLibraryDecorator) AndroidMkEntries(ctx AndroidMkContext, 
 		entries.Class = "HEADER_LIBRARIES"
 	}
 
-	entries.SubName = ""
-
-	if c.sanitizerProperties.CfiEnabled {
-		entries.SubName += ".cfi"
-	}
-
 	if c.androidMkVendorSuffix {
-		entries.SubName += vendorSuffix
+		entries.SubName = vendorSuffix
+	} else {
+		entries.SubName = ""
 	}
 
 	entries.ExtraEntries = append(entries.ExtraEntries, func(entries *android.AndroidMkEntries) {
